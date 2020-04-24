@@ -1,0 +1,29 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{% block content %}
+<h2>{{ name }}</h2>
+<form action="{{ url_for('search') }}" method="post">
+    <label for="keyword">
+        <i></i>
+    </label>
+    <input type="text" name="keyword" placeholder="Search" required>
+</form>
+<table>
+    <tr>
+        <th>Image</th>
+        <th>Name</th>
+    </tr>
+{% for item in data %}
+<tr>
+        <td><img src = {{ item['image'] }} style = 'height: 200px'></td>
+        <td>
+            <a href={{ url_for('one_item', id = item['id'] ) }}> 
+                {{item['name']}}
+            </a>
+        </td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}
