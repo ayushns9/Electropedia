@@ -15,6 +15,8 @@ app.config['MYSQL_DB'] = 'DBMS'
 
 mysql = MySQL(app)
 
+# MySQLdb.escape_string(mysql)
+
 @app.route('/')
 def func():
     return render_template('index.html')
@@ -57,7 +59,7 @@ def register():
     elif request.method == 'POST':
         msg = 'Please fill out the form!'
         return render_template('register.html', msg=msg)
-    if(len(email)==0):
+    if(len(email)==0 or name == 'admin'):
         msg = 'Please fill out the form!'
         return render_template('register.html', msg=msg)
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
