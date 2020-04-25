@@ -144,7 +144,7 @@ def view(type):
     elif type == 4:
         type = "TV"
     else:
-        return redirect(render_template("add_product.html"))
+        return render_template("add_product.html")
     cur.execute(f'SELECT * from products where type="{type}"')
     data = cur.fetchall()
     return render_template('list.html', data = data, item='Laptops')
