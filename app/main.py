@@ -81,8 +81,47 @@ def home():
 
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():
+
+    return render_template('add_product.html')
+
+@app.route('/add_sells', methods = ['GET', 'POST'])
+def add_sells():
     msg = ""
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    p_id = request.form['id']
+    link = request.form['link']
+    price = request.form['price']
+    store = request.form['store']
+
+    cursor.execute(f'Select * from store where name = "{store}"')
+    store_t = cursor.fetchall()
+    if(len(store_t) == 0):
+        cursor.execute(f'Insert into store(name) values("{store}")')
+        mysql.connection.commit()
+    cursor.execute(f'Select * from store where name = "{store}"')
+    store_t = cursor.fetchone()
+    s_id = store_t['id']
+
+    try:
+        cursor.execute(f'''Insert into sells values({p_id}, {s_id}, {price}, "{link}")''')
+        mysql.connection.commit()
+    except:
+        msg = "Unable to add link!"
     return render_template('add_product.html', msg = msg)
+
+@app.route('/search2', methods=['GET','POST'])
+def search2():
+    data = []
+    print(request.form, file=sys.stderr)
+    if 'keyword' in request.form:
+        keyword = request.form['keyword']
+    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    qry = f'SELECT * from products where name like "%{keyword}%"'
+    cur.execute(qry)
+    data = cur.fetchall()
+    print(data, file = sys.stderr)
+    print(qry, file = sys.stderr)
+    return render_template('add_product.html', data = data)
 
 @app.route('/profile')
 def profile():
@@ -93,10 +132,20 @@ def profile():
         return render_template('profile.html', account=account)
     return redirect(url_for('login'))
     
-@app.route('/laptops', methods=['GET', 'POST'])
-def laptops():
+@app.route('/view/<int:type>', methods=['GET', 'POST'])
+def view(type):
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cur.execute("SELECT * from products where type='Laptop'")
+    if type == 1:
+        type = "Laptop"
+    elif type == 2:
+        type = "Mobile"
+    elif type == 3:
+        type = "Camera"
+    elif type == 4:
+        type = "TV"
+    else:
+        return redirect(render_template("add_product.html"))
+    cur.execute(f'SELECT * from products where type="{type}"')
     data = cur.fetchall()
     return render_template('list.html', data = data, item='Laptops')
 
@@ -121,11 +170,6 @@ def one_item(id):
         x = cur.fetchone()
         i['name'] = x['name']
         i['image'] = x['image']
-    # options=[]
-    # for i in data:
-    #     option = [i['price'], i['link']]
-    #     options.append(option)
-    # best = min(options)
     cur.execute("Select review,user_id from reviews where product_id=%s",(id,))
     reviews = cur.fetchall()
     data=[]

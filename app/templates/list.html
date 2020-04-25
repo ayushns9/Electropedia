@@ -3,18 +3,22 @@
 {% block title %}{{ name }}{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
 <h2>{{ name }}</h2>
 <form action="{{ url_for('search') }}" method="post">
-    <label for="keyword">
-        <i></i>
-    </label>
-    <input type="text" name="keyword" placeholder="Search" required>
-</form>
-<table>
+    <div class="form-group">
+      <input type="text" name = "keyword" class="form-control" placeholder="Search Product">
+    </div>
+  </form>
+<br>
+<table class="table">
+    <thead class="thead-dark">
     <tr>
         <th>Image</th>
         <th>Name</th>
     </tr>
+</thead>
 {% for item in data %}
 <tr>
         <td><img src = {{ item['image'] }} style = 'height: 200px'></td>

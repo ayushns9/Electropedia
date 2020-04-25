@@ -42,17 +42,52 @@
   </form>
 <br>
 <h4>Add link</h4>
-<form>
-    <div class="form-group">
-      <label for="Name">Search Product</label>
-      <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Search Product">
-    </div>
-  </form>
   
-  <form>
+  <form action="{{ url_for('search2') }}" method="post">
     <div class="form-group">
-      <label for="Name">Product ID</label>
-      <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter product id">
+      <label for="keyword">Search Product</label>
+      <input type="text" name = "keyword" class="form-control" placeholder="Search Product">
     </div>
   </form>
+
+<table class="table">
+  {% if data|length > 1 %}
+  <thead class="thead-dark">
+    <tr>
+        <th>ID</th>
+        <th>Image</th>
+        <th>Name</th>
+    </tr>
+  </thead>
+{% for item in data %}
+<tr>
+        <td> {{ item['id'] }} </td>
+        <td><img src = {{ item['image'] }} style = 'height: 200px'></td>
+        <td>
+                {{item['name']}}
+        </td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+  <form action = "{{ url_for('add_sells') }}" method="post">
+    <div class="form-group">
+      <label for="id">Product ID</label>
+      <input type="text" class="form-control" name ="id" placeholder="Enter product id" required>
+    </div>
+    <div class="form-group">
+      <label for="store">Store</label>
+      <input type="text" class="form-control" name = "store" placeholder="Enter store name" required>
+    </div>
+    <div class="form-group">
+      <label for="link">Link</label>
+      <input type="text" class="form-control" name = "link" placeholder="Enter link" required>
+    </div>
+    <div class="form-group">
+      <label for="price">Price</label>
+      <input type="text" class="form-control" name= "price" placeholder="Enter price" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+  </form>
+<p style="color: red;">{{ msg }}</p>
 {% endblock %}

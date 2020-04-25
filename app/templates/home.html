@@ -5,5 +5,81 @@
 {% block content %}
 <h2>Home Page</h2>
 <p>Welcome back, {{ username }}!</p>
-<a href = "{{ url_for('laptops') }}"><button type="button" class="btn btn-primary">Laptops</button></a>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<style>
+    .container {
+      position: relative;
+      width: 50%;
+    }
+    
+    .image {
+      opacity: 1;
+      display: block;
+      width: 100%;
+      height: auto;
+      transition: .5s ease;
+      backface-visibility: hidden;
+    }
+    
+    .middle {
+      transition: .5s ease;
+      opacity: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    
+    .container:hover .image {
+      opacity: 0.3;
+    }
+    
+    .container:hover .middle {
+      opacity: 1;
+    }
+    
+    .text {
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      padding: 16px 32px;
+    }
+    </style>
+<div class = "row">
+    <div class="container" style="width: 27rem;">
+    <img class="image" src="https://cdn.mos.cms.futurecdn.net/X5TyA8uvkGXoNyjFzxcowS.jpg" alt="Card image cap">
+    <div class="middle">
+      <a href="{{ url_for('view', type=1) }}" class="text">Laptops</a>
+    </div>
+  </div>
+  <div class="container" style="width: 27rem;">
+    <img class="image" src="https://cdn.mos.cms.futurecdn.net/TJDYpZN3r8B7onh2imuNah.jpg" alt="Card image cap">
+    <div class="middle">
+      <a href="{{ url_for('view', type = 2) }}" class = "text">Mobiles</a>
+    </div>
+  </div>
+  <div class="container" style="width: 27rem;">
+    <img class="image" src="https://cdn.mos.cms.futurecdn.net/7UKru4akuGz2QcUPp6smqX.jpg" alt="Card image cap">
+    <div class="middle">
+      <a href="{{ url_for('view', type = 3) }}" class="text">Cameras</a>
+    </div>
+  </div>
+  <div class="container" style="width: 27rem;">
+    <img class="image" src="https://images.samsung.com/is/image/samsung/in-qledtv-q60r-qa49q60rakxxl-frontblack-152405789?$PD_GALLERY_L_JPG$" alt="Card image cap">
+    <div class="middle">
+      <a href="{{ url_for('view', type = 4) }}" class="text">TV</a>
+    </div>
+  </div>
+</div>
+
+{% if 'admin' == username %}
+<div class="container" style="width: 27rem;margin: auto;">
+    <img class="image" src="https://www.w3schools.com/howto/img_avatar.png" alt="Card image cap">
+    <div class="middle">
+      <a href="{{ url_for('view', type = 5) }}" class="text">Admin Panel</a>
+    </div>
+  </div>
+{% endif %}
 {% endblock %}
