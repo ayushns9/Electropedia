@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+{% block title %}Add Product{% endblock %}
+
+{% block content %}
+<center><h2>Admin panel</h2></center>
+<h4>Add Product</h4> 
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<form>
+    <div class="form-group">
+      <label for="Name">Product Name</label>
+      <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter product name">
+    </div>
+    <div class="form-group">
+      <label for="link">Link to image</label>
+      <input type="text" class="form-control" id="exampleInputPassword1" placeholder="Link">
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
+        <label class="form-check-label" for="exampleRadios1">
+          Laptop
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
+        <label class="form-check-label" for="exampleRadios2">
+          Mobile
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
+        <label class="form-check-label" for="exampleRadios2">
+          Camera
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
+        <label class="form-check-label" for="exampleRadios2">
+          TV
+        </label>
+      </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+  </form>
+<br>
+<h4>Add link</h4>
+<form>
+    <div class="form-group">
+      <label for="Name">Search Product</label>
+      <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Search Product">
+    </div>
+  </form>
+  
+  <form>
+    <div class="form-group">
+      <label for="Name">Product ID</label>
+      <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter product id">
+    </div>
+  </form>
+{% endblock %}

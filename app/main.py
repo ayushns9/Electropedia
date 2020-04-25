@@ -79,6 +79,11 @@ def home():
         return render_template('home.html', username=session['username'])
     return redirect(url_for('login'))
 
+@app.route('/add_product', methods=['GET', 'POST'])
+def add_product():
+    msg = ""
+    return render_template('add_product.html', msg = msg)
+
 @app.route('/profile')
 def profile():
     if 'loggedin' in session:
