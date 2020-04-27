@@ -87,31 +87,53 @@ def home():
 
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():
+    print(request.form, file=sys.stderr)
+    
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    if('name' in request.form and 'image' in request.form and len(request.form) == 3):
+        msg = ""
+        name=request.form['name']
+        image=request.form['link']
 
-    return render_template('add_product.html')
+        if('laptop' in request.form):
+            type = 'Laptop'
+        elif('mobile' in request.form):
+            type = 'Mobile'
+        elif('tv' in request.form):
+            type = 'TV'
+        else:
+            type = 'Camera'
+        
+        cursor.execute('Insert into products(name, type, image) values(?,?,?)',(name,type,image,))
+    else:
+        msg = "Please fill the form"
+    return render_template('add_product.html', msg1=msg)
 
 @app.route('/add_sells', methods = ['GET', 'POST'])
 def add_sells():
     msg = ""
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    p_id = request.form['id']
-    link = request.form['link']
-    price = request.form['price']
-    store = request.form['store']
+    if(len(request.form) == 4):
+        p_id = request.form['id']
+        link = request.form['link']
+        price = request.form['price']
+        store = request.form['store']
 
-    cursor.execute(f'Select * from store where name = "{store}"')
-    store_t = cursor.fetchall()
-    if(len(store_t) == 0):
-        cursor.execute(f'Insert into store(name) values("{store}")')
-        mysql.connection.commit()
-    cursor.execute(f'Select * from store where name = "{store}"')
-    store_t = cursor.fetchone()
-    s_id = store_t['id']
+        cursor.execute(f'Select * from store where name = "{store}"')
+        store_t = cursor.fetchall()
+        if(len(store_t) == 0):
+            cursor.execute(f'Insert into store(name) values("{store}")')
+            mysql.connection.commit()
+        cursor.execute(f'Select * from store where name = "{store}"')
+        store_t = cursor.fetchone()
+        s_id = store_t['id']
 
-    try:
-        cursor.execute(f'''Insert into sells values({p_id}, {s_id}, {price}, "{link}")''')
-        mysql.connection.commit()
-    except:
+        try:
+            cursor.execute(f'''Insert into sells values({p_id}, {s_id}, {price}, "{link}")''')
+            mysql.connection.commit()
+        except:
+            msg = "Unable to add link!"
+    else:
         msg = "Unable to add link!"
     return render_template('add_product.html', msg = msg)
 

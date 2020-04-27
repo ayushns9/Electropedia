@@ -5,41 +5,44 @@
 <center><h2>Admin panel</h2></center>
 <h4>Add Product</h4> 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<form>
+<form action = "{{ url_for('add_product') }}" method="post">
     <div class="form-group">
-      <label for="Name">Product Name</label>
-      <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter product name">
+      <label for="name">Product Name</label>
+      <input type="text" class="form-control" name="name" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter product name">
     </div>
     <div class="form-group">
       <label for="link">Link to image</label>
-      <input type="text" class="form-control" id="exampleInputPassword1" placeholder="Link">
+      <input type="text" class="form-control" name="link" id="exampleInputPassword1" placeholder="Link">
     </div>
     <div class="form-check">
-        <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
-        <label class="form-check-label" for="exampleRadios1">
+        <input class="form-check-input" type="radio" name="laptop" id="exampleRadios1" value="option1" checked>
+        <label class="form-check-label" for="laptop">
           Laptop
         </label>
       </div>
       <div class="form-check">
-        <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
-        <label class="form-check-label" for="exampleRadios2">
+        <input class="form-check-input" type="radio" name="mobile" id="exampleRadios2" value="option2">
+        <label class="form-check-label" for="mobile">
           Mobile
         </label>
       </div>
       <div class="form-check">
-        <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
-        <label class="form-check-label" for="exampleRadios2">
+        <input class="form-check-input" type="radio" name="camera" id="exampleRadios2" value="option2">
+        <label class="form-check-label" for="camera">
           Camera
         </label>
       </div>
       <div class="form-check">
-        <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
-        <label class="form-check-label" for="exampleRadios2">
+        <input class="form-check-input" type="radio" name="tv" id="exampleRadios2" value="option2">
+        <label class="form-check-label" for="tv">
           TV
         </label>
       </div>
     <button type="submit" class="btn btn-primary">Add</button>
   </form>
+  {% if msg1|length > 1 %}
+  <p style="color: red;">{{ msg1 }}</p>
+  {% endif %}
 <br>
 <h4>Add link</h4>
   
@@ -89,5 +92,7 @@
     </div>
     <button type="submit" class="btn btn-primary">Add</button>
   </form>
+  {% if msg|length > 1 %}
 <p style="color: red;">{{ msg }}</p>
+{% endif %}
 {% endblock %}
