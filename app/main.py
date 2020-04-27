@@ -63,7 +63,7 @@ def register():
         msg = 'Please fill out the form!'
         return render_template('register.html', msg=msg)
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT * FROM user where email=%s AND password=%s', (email, password))
+    cursor.execute('SELECT * FROM user where email=%s', (email,))
     account = cursor.fetchone()
     if account:
         msg = 'Account already exists!'
