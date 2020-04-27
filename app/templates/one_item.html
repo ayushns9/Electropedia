@@ -17,6 +17,7 @@
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 <br>
+{% if data|length > 0 %}
 <table class = "table">
     <thead class = "thead-dark">
     <tr>
@@ -33,7 +34,32 @@
 </tr>
 {% endfor %}
 </table>
+{% endif %}
+<h3>Technical specifications</h3>
+<table class = "table">
+    <thead class="thead-dark">
+        <tr><th>
+            Specification
+        </th>
+        <th>
+            Value
+        </th></tr>
+    </thead>
+    {% for spec in specs_col %}
+        <tr>
+            <td>
+                {{ spec }}
+            </td>
+            <td>
+                {{ specs_row[loop.index] }}
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+{% if msg|length > 0 %}
 <p style='color:RED'>{{ msg }}</p>
+{% endif %}
+{% if viewed|length > 0 %}
 <h3>Users who viewed this also viewed:-</h3>
 <table class = "table">
     <thead class = "thead-dark">
@@ -42,7 +68,6 @@
         <th>Name</th>
     </tr>
     </thead>
-{% if viewed|length > 1 %}
 {% for item in viewed %}
 <tr>
         <td><img src = {{ item['image'] }} style = 'height: 200px'></td>

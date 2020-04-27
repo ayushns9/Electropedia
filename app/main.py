@@ -87,10 +87,9 @@ def home():
 
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():
-    print(request.form, file=sys.stderr)
     
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    if('name' in request.form and 'image' in request.form and len(request.form) == 3):
+    if('name' in request.form and 'link' in request.form and len(request.form) == 3):
         msg = ""
         name=request.form['name']
         image=request.form['link']
@@ -103,8 +102,12 @@ def add_product():
             type = 'TV'
         else:
             type = 'Camera'
-        
-        cursor.execute('Insert into products(name, type, image) values(?,?,?)',(name,type,image,))
+        try:
+            cursor.execute('Insert into products(name, type, image) values(%s,%s,%s)',(name,type,image,))
+            mysql.connection.commit()
+            msg1 = "Prouct added!"
+        except:
+            msg1 = "Unable to add product!"
     else:
         msg = "Please fill the form"
     return render_template('add_product.html', msg1=msg)
@@ -119,18 +122,19 @@ def add_sells():
         price = request.form['price']
         store = request.form['store']
 
-        cursor.execute(f'Select * from store where name = "{store}"')
+        cursor.execute(f'Select * from store where name = "%s"', (store,))
         store_t = cursor.fetchall()
         if(len(store_t) == 0):
-            cursor.execute(f'Insert into store(name) values("{store}")')
+            cursor.execute(f'Insert into store(name) values(%s)', (store,))
             mysql.connection.commit()
-        cursor.execute(f'Select * from store where name = "{store}"')
+        cursor.execute(f'Select * from store where name = %s', (store,))
         store_t = cursor.fetchone()
         s_id = store_t['id']
 
         try:
-            cursor.execute(f'''Insert into sells values({p_id}, {s_id}, {price}, "{link}")''')
+            cursor.execute(f'''Insert into sells values(%s, %s, %s, %s)''',(p_id, s_id, price, link))
             mysql.connection.commit()
+            msg = "Link added!"
         except:
             msg = "Unable to add link!"
     else:
@@ -140,15 +144,12 @@ def add_sells():
 @app.route('/search2', methods=['GET','POST'])
 def search2():
     data = []
-    print(request.form, file=sys.stderr)
     if 'keyword' in request.form:
         keyword = request.form['keyword']
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     qry = f'SELECT * from products where name like "%{keyword}%"'
     cur.execute(qry)
     data = cur.fetchall()
-    print(data, file = sys.stderr)
-    print(qry, file = sys.stderr)
     return render_template('add_product.html', data = data)
 
 @app.route('/profile')
@@ -173,7 +174,7 @@ def view(type):
         type = "TV"
     else:
         return render_template("add_product.html")
-    cur.execute(f'SELECT * from products where type="{type}"')
+    cur.execute(f'SELECT * from products where type=%s',(type,))
     data = cur.fetchall()
     return render_template('list.html', data = data, item='Laptops')
 
@@ -184,7 +185,6 @@ def one_item(id):
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cur.execute("SELECT min(price), link from sells where p_id=%s",(id,))
     best = cur.fetchone()
-    print(best,file=sys.stderr)
     u_id = session['id']
     try:
         cur.execute("Insert into clicks values(%s, %s)", (u_id, id))
@@ -204,20 +204,22 @@ def one_item(id):
     for i in reviews:
         cur.execute("Select name from user where id=%s",(i['user_id'],))
         data.append([i['review'], cur.fetchone()])
-    print(muliple,file=sys.stderr)
-
-    return render_template('one_item.html',best_price = best['min(price)'],best_link=best['link'], id = id, data=data, msg = muliple, viewed = viewed)
+    cur.execute('''SELECT type from products where id=%s''',(id,))
+    type = (cur.fetchone()['type']).lower()
+    type += '_specs'
+    cur.execute(f'''SELECT * from {type} where p_id=%s''',(id,))
+    specs = cur.fetchone()
+    return render_template('one_item.html',best_price = best['min(price)'],best_link=best['link'], id = id, data=data, msg = muliple, viewed = viewed, specs_col = list(specs.keys()),specs_row=list(specs.values()))
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if 'keyword' in request.form:
         keyword = request.form['keyword']
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    qry = 'SELECT * from products where name like '
-    qry += '"%'
-    qry += keyword
-    qry += '%"'
-    cur.execute(qry)
+    keyword = keyword.replace('"', '\\"')
+    if('--' in keyword):
+        msg = "No products found"
+    cur.execute('''SELECT * FROM products WHERE name LIKE "%{}%"'''.format(keyword))
     data = cur.fetchall()
     return render_template('list.html', data = data)
 
