@@ -4,9 +4,10 @@
 
 {% block content %}
 <h2>Profile Page</h2>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <div>
     <p>Your account details are below:</p>
-    <table>
+    <table class="table">
         <tr>
             <td>Username:</td>
             <td>{{ account['name'] }}</td>
@@ -20,5 +21,18 @@
             <td>{{ account['email'] }}</td>
         </tr>
     </table>
+    <form action="{{ url_for('delete_account') }}" id = "delete" >
+        <input onclick="myFunction()" style="cursor: pointer;" class="btn btn-primary" value = "Delete my account" readonly/>
+    </form>
+    <script type="text/javascript">
+        function myFunction() {
+          if(confirm("Deleting your account will delete all your data. Are you sure? (This is irreversible)")){
+            document.getElementById('delete').submit();
+          }
+          else{
+            return false;
+          }
+        }
+    </script>
 </div>
 {% endblock %}

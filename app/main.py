@@ -15,7 +15,7 @@ app.config['MYSQL_DB'] = 'DBMS'
 
 mysql = MySQL(app)
 
-# MySQLdb.escape_string(mysql)
+session = {}
 
 @app.route('/')
 def func():
@@ -147,8 +147,7 @@ def search2():
     if 'keyword' in request.form:
         keyword = request.form['keyword']
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    qry = f'SELECT * from products where name like "%{keyword}%"'
-    cur.execute(qry)
+    cur.execute('''SELECT * FROM products WHERE name LIKE "%{}%"'''.format(keyword))
     data = cur.fetchall()
     return render_template('add_product.html', data = data)
 
@@ -160,6 +159,18 @@ def profile():
         account = cursor.fetchone()
         return render_template('profile.html', account=account)
     return redirect(url_for('login'))
+
+@app.route('/delete_acccount')
+def delete_account():
+    global session
+    print(session,file=sys.stderr)
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('DELETE from clicks where u_id = %s',(session['id'],))
+    cursor.execute('DELETE from reviews where user_id = %s',(session['id'],))
+    cursor.execute('DELETE from user where id = %s',(session['id'],))
+    mysql.connection.commit()
+    session = {}
+    return render_template('index.html')
     
 @app.route('/view/<int:type>', methods=['GET', 'POST'])
 def view(type):
