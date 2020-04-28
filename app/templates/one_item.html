@@ -7,8 +7,14 @@
 <h2>Product Page</h2>
 
 <h4>Best price: ₹{{ best_price }}</h4>
-<h4>Get the best price at: <a href="{{ best_link }}">Click here</a></h4> 
-
+<form action="{{ url_for('clicked', s_id = store, p_id = id) }}" id="clicked">
+<h4>Get the best price at: <a onclick="func()" href="{{ best_link }}">Click here</a></h4> 
+<script type="text/javascript">
+    function func() {
+        document.getElementById('clicked').submit();
+    }
+</script>
+</form>
 <form action="{{ url_for('review', p_id =id) }}" method="post">
     <div class="form-group">
         <label for="review">Review</label>

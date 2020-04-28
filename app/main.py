@@ -1,8 +1,15 @@
+
+from __future__ import print_function
+import sys
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
-import sys 
+
+
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 app = Flask(__name__)
 
@@ -14,8 +21,6 @@ app.config['MYSQL_PASSWORD'] = 'admin123'
 app.config['MYSQL_DB'] = 'DBMS'
 
 mysql = MySQL(app)
-
-session = {}
 
 @app.route('/')
 def func():
@@ -125,7 +130,9 @@ def add_sells():
         cursor.execute(f'Select * from store where name = "%s"', (store,))
         store_t = cursor.fetchall()
         if(len(store_t) == 0):
-            cursor.execute(f'Insert into store(name) values(%s)', (store,))
+            email = 'admin@' + i['name'] + '.com'
+            password = 'admin' + str(i['id'])
+            cursor.execute(f'Insert into store(name,email,password) values(%s,%s,%s)', (store,email,password))
             mysql.connection.commit()
         cursor.execute(f'Select * from store where name = %s', (store,))
         store_t = cursor.fetchone()
@@ -193,14 +200,15 @@ muliple = ""
 @app.route('/one_item/<int:id>')
 def one_item(id):
     global muliple
+    eprint(session)
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cur.execute("SELECT min(price), link from sells where p_id=%s",(id,))
+    cur.execute("select a.link,a.p_id, a.s_id, a.price from sells a, (select p_id, min(price) as mp from sells group by p_id)b where a.price=b.mp and a.p_id = b.p_id and a.p_id = %s",(id,))
     best = cur.fetchone()
     u_id = session['id']
     try:
         cur.execute("Insert into clicks values(%s, %s)", (u_id, id))
     except:
-        pass
+        pass 
     mysql.connection.commit()
     cur.execute("Select b.p_id from clicks a, clicks b where a.u_id = b.u_id and a.p_id = %s and a.u_id <> %s", (id,u_id))
     viewed = cur.fetchall()
@@ -220,7 +228,8 @@ def one_item(id):
     type += '_specs'
     cur.execute(f'''SELECT * from {type} where p_id=%s''',(id,))
     specs = cur.fetchone()
-    return render_template('one_item.html',best_price = best['min(price)'],best_link=best['link'], id = id, data=data, msg = muliple, viewed = viewed, specs_col = list(specs.keys()),specs_row=list(specs.values()))
+    eprint(best['s_id'])
+    return render_template('one_item.html',best_price = best['price'],best_link=best['link'], store=best['s_id'] , id = id, data=data, msg = muliple, viewed = viewed, specs_col = list(specs.keys()),specs_row=list(specs.values()))
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -248,3 +257,47 @@ def review(p_id):
         muliple = "You can't add more than one review for the same product!"
     
     return redirect(url_for('one_item', id=p_id))
+
+
+@app.route('/clicked/<int:s_id>/<int:p_id>', methods=['POST', 'GET'])
+def clicked(s_id, p_id):
+    eprint('called')
+    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cur.execute("Insert into clicks_to_website values(%s, %s)",(p_id, s_id))
+    mysql.connection.commit()
+    return redirect(url_for('one_item',id = p_id))
+
+@app.route('/login_store',methods=['GET', 'POST'])
+def login_store():
+    msg = ''
+    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
+        username = request.form['username']
+        password = request.form['password']
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM store where email=%s and password=%s', (username, password))
+        account = cursor.fetchone()
+        if(account):
+            session['loggedin'] = True
+            session['id'] = account['id']
+            session['username'] = account['name']
+            return redirect(url_for('store_portal'))
+        else:
+            msg = 'Incorrect email/password'
+    return render_template('login_store.html', msg = msg)
+
+@app.route('/store_portal',  methods=['POST', 'GET'])
+def store_portal():
+    eprint(session)
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT s_id, p_id,count(p_id), rank() over(order by count(p_id)) myrank FROM clicks_to_website where s_id=%s', (session['id'],))
+    data = cursor.fetchall()
+    real_data = []
+    clicks = 0
+    for i in data:
+        cursor.execute('SELECT name from products where id = %s',(i['p_id'],))
+        name = cursor.fetchone()['name']
+        real_data.append([i['myrank'],name,i['count(p_id)']])
+        clicks += i['count(p_id)']
+    real_data.sort()
+    eprint(real_data)
+    return render_template('store_portal.html', data = real_data, clicks = clicks)
