@@ -1,4 +1,3 @@
-
 from __future__ import print_function
 import sys
 from flask import Flask, render_template, request, redirect, url_for, session
@@ -289,7 +288,7 @@ def login_store():
 def store_portal():
     eprint(session)
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT s_id, p_id,count(p_id), rank() over(order by count(p_id)) myrank FROM clicks_to_website where s_id=%s', (session['id'],))
+    cursor.execute('SELECT s_id, p_id,count(p_id), rank() over(order by count(p_id)) myrank FROM clicks_to_website where s_id=%s group by p_id', (session['id'],))
     data = cursor.fetchall()
     real_data = []
     clicks = 0
