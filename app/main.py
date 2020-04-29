@@ -5,8 +5,6 @@ from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
 
-
-
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
@@ -32,7 +30,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM user where email=%s and password=%s', (username, password))
+        cursor.execute('call get_account(%s, md5(%s))', (username, password))
         account = cursor.fetchone()
         if(account):
             session['loggedin'] = True
@@ -78,7 +76,7 @@ def register():
     elif not name or not password or not email:
         msg = 'Please fill out the form!'
     else:
-        cursor.execute('INSERT INTO user(name, email, password) VALUES (%s, %s, %s)', (name, email, password))
+        cursor.execute('INSERT INTO user(name, email, password) VALUES (%s, %s, md5(%s))', (name, email, password))
         mysql.connection.commit()
         msg = 'You have successfully registered!'
     return render_template('register.html', msg=msg)
@@ -129,9 +127,7 @@ def add_sells():
         cursor.execute(f'Select * from store where name = "%s"', (store,))
         store_t = cursor.fetchall()
         if(len(store_t) == 0):
-            email = 'admin@' + i['name'] + '.com'
-            password = 'admin' + str(i['id'])
-            cursor.execute(f'Insert into store(name,email,password) values(%s,%s,%s)', (store,email,password))
+            cursor.execute(f'Insert into store(name) values(%s)', (store,))
             mysql.connection.commit()
         cursor.execute(f'Select * from store where name = %s', (store,))
         store_t = cursor.fetchone()
@@ -171,9 +167,7 @@ def delete_account():
     global session
     print(session,file=sys.stderr)
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('DELETE from clicks where u_id = %s',(session['id'],))
-    cursor.execute('DELETE from reviews where user_id = %s',(session['id'],))
-    cursor.execute('DELETE from user where id = %s',(session['id'],))
+    cursor.execute('call remove_account(%s)', (session['id'],))
     mysql.connection.commit()
     session = {}
     return render_template('index.html')
@@ -206,29 +200,19 @@ def one_item(id):
     u_id = session['id']
     try:
         cur.execute("Insert into clicks values(%s, %s)", (u_id, id))
+        mysql.connection.commit()
     except:
         pass 
-    mysql.connection.commit()
-    cur.execute("Select b.p_id from clicks a, clicks b where a.u_id = b.u_id and a.p_id = %s and a.u_id <> %s", (id,u_id))
+    cur.execute("Select p.name, p.image, b.p_id from clicks a, clicks b, products p where a.u_id = b.u_id and a.p_id = %s and a.u_id <> %s and b.p_id = p.id", (id,u_id))
     viewed = cur.fetchall()
-    for i in viewed:
-        cur.execute('Select name, image from products where id = %s', (i['p_id'],))
-        x = cur.fetchone()
-        i['name'] = x['name']
-        i['image'] = x['image']
-    cur.execute("Select review,user_id from reviews where product_id=%s",(id,))
+    cur.execute("Select name, review,user_id from reviews,user where product_id=%s and user_id = id",(id,))
     reviews = cur.fetchall()
-    data=[]
-    for i in reviews:
-        cur.execute("Select name from user where id=%s",(i['user_id'],))
-        data.append([i['review'], cur.fetchone()])
-    cur.execute('''SELECT type from products where id=%s''',(id,))
+    cur.execute('''call get_type(%s)''',(id,))
     type = (cur.fetchone()['type']).lower()
     type += '_specs'
     cur.execute(f'''SELECT * from {type} where p_id=%s''',(id,))
     specs = cur.fetchone()
-    eprint(best['s_id'])
-    return render_template('one_item.html',best_price = best['price'],best_link=best['link'], store=best['s_id'] , id = id, data=data, msg = muliple, viewed = viewed, specs_col = list(specs.keys()),specs_row=list(specs.values()))
+    return render_template('one_item.html',reviews = reviews, best_price = best['price'],best_link=best['link'], store=best['s_id'] , id = id, msg = muliple, viewed = viewed, specs_col = list(specs.keys()),specs_row=list(specs.values()))
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -273,7 +257,7 @@ def login_store():
         username = request.form['username']
         password = request.form['password']
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM store where email=%s and password=%s', (username, password))
+        cursor.execute('SELECT * FROM store where email=%s and password=md5(%s)', (username, password))
         account = cursor.fetchone()
         if(account):
             session['loggedin'] = True
@@ -288,15 +272,10 @@ def login_store():
 def store_portal():
     eprint(session)
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT s_id, p_id,count(p_id), rank() over(order by count(p_id)) myrank FROM clicks_to_website where s_id=%s group by p_id', (session['id'],))
+    cursor.execute('SELECT name, s_id, p_id,count(p_id), rank() over(order by count(p_id)) myrank FROM clicks_to_website, products p where s_id=%s and p.id = p_id group by p_id order by myrank', (session['id'],))
     data = cursor.fetchall()
     real_data = []
     clicks = 0
     for i in data:
-        cursor.execute('SELECT name from products where id = %s',(i['p_id'],))
-        name = cursor.fetchone()['name']
-        real_data.append([i['myrank'],name,i['count(p_id)']])
         clicks += i['count(p_id)']
-    real_data.sort()
-    eprint(real_data)
-    return render_template('store_portal.html', data = real_data, clicks = clicks)
+    return render_template('store_portal.html', data = data, clicks = clicks)

@@ -23,7 +23,7 @@
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 <br>
-{% if data|length > 0 %}
+{% if reviews|length > 0 %}
 <table class = "table">
     <thead class = "thead-dark">
     <tr>
@@ -31,11 +31,11 @@
         <th>Review</th>
     </tr>
 </thead>
-{% for item in data %}
+{% for item in reviews %}
 <tr>
-    <td>{{ item[1]['name'] }}</td>
+    <td>{{ item['name'] }}</td>
     <td>
-        {{ item[0] }}
+        {{ item['review'] }}
     </td>
 </tr>
 {% endfor %}
