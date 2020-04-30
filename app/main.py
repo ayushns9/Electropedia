@@ -197,6 +197,8 @@ def one_item(id):
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cur.execute("select a.link,a.p_id, a.s_id, a.price from sells a, (select p_id, min(price) as mp from sells group by p_id)b where a.price=b.mp and a.p_id = b.p_id and a.p_id = %s",(id,))
     best = cur.fetchone()
+    cur.execute("Select link,s_id from sells where p_id = %s and link<>%s",(id, best['link']))
+    otherlinks = cur.fetchall()
     u_id = session['id']
     try:
         cur.execute("Insert into clicks values(%s, %s)", (u_id, id))
@@ -212,7 +214,7 @@ def one_item(id):
     type += '_specs'
     cur.execute(f'''SELECT * from {type} where p_id=%s''',(id,))
     specs = cur.fetchone()
-    return render_template('one_item.html',reviews = reviews, best_price = best['price'],best_link=best['link'], store=best['s_id'] , id = id, msg = muliple, viewed = viewed, specs_col = list(specs.keys()),specs_row=list(specs.values()))
+    return render_template('one_item.html',otherlinks = otherlinks, reviews = reviews, best_price = best['price'],best_link=best['link'], store=best['s_id'] , id = id, msg = muliple, viewed = viewed, specs_col = list(specs.keys()),specs_row=list(specs.values()))
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():

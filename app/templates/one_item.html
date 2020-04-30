@@ -8,13 +8,21 @@
 
 <h4>Best price: ₹{{ best_price }}</h4>
 <form action="{{ url_for('clicked', s_id = store, p_id = id) }}" id="clicked">
-<h4>Get the best price at: <a onclick="func()" href="{{ best_link }}">Click here</a></h4> 
+    <h4>Get the best price at: <a onclick="func()" href="{{ best_link }}">Click here</a></h4> 
+</form>
+{% if otherlinks|length > 0 %}
+<h4>Other links:- </h4>
+{% for i in otherlinks %}
+<form action="{{ url_for('clicked', s_id = i['s_id'], p_id = id) }}">
+<a onclick="func()" href="{{ i['link'] }}"><h4><button type="submit" class="btn btn-primary">Click here</button></h4></a>
+</form>
+{% endfor %}
+{% endif %}
 <script type="text/javascript">
     function func() {
         document.getElementById('clicked').submit();
     }
 </script>
-</form>
 <form action="{{ url_for('review', p_id =id) }}" method="post">
     <div class="form-group">
         <label for="review">Review</label>
