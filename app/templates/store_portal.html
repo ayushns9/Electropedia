@@ -29,5 +29,24 @@
         </td>
 </tr>
 {% endfor %}
+<table class="table">
+    <thead class="thead-dark">
+    <tr>
+        <th>Store</th>
+        <th>Clicks</th>
+    </tr>
+</thead>
+<h3>Your competitors</h3>
+{% for item in others %}
+<tr>
+        <td>
+            {{ item['name'] }}
+        </td>
+        <td>
+            {{ item['count(s_id)'] }}
+        </td>
+</tr>
+{% endfor %}
 </table>
+
 {% endblock %}

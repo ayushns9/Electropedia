@@ -274,10 +274,12 @@ def login_store():
 def store_portal():
     eprint(session)
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT name, s_id, p_id,count(p_id), rank() over(order by count(p_id)) myrank FROM clicks_to_website, products p where s_id=%s and p.id = p_id group by p_id order by myrank', (session['id'],))
+    cursor.execute('SELECT name, s_id, p_id,count(p_id), rank() over(order by count(p_id) DESC) myrank FROM clicks_to_website, products p where s_id=%s and p.id = p_id group by p_id order by myrank', (session['id'],))
     data = cursor.fetchall()
+    cursor.execute('select name, count(s_id) from clicks_to_website,store where id=s_id and s_id<>%s group by s_id',(session['id'],))
+    others = cursor.fetchall()
     real_data = []
     clicks = 0
     for i in data:
         clicks += i['count(p_id)']
-    return render_template('store_portal.html', data = data, clicks = clicks)
+    return render_template('store_portal.html', data = data, clicks = clicks, others = others)
