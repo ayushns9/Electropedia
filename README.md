@@ -9,9 +9,9 @@ E-shopping can get time-consuming and confusing given all the different websites
 Simply go to [http://dbms-website.herokuapp.com/](http://dbms-website.herokuapp.com/)
 
 # Images of Website
-![image1](Images/screenshot1)
-![image2](Images/screenshot5)
-![image3](Images/screenshot6)
+![image1](Images/screenshot1.png)
+![image2](Images/screenshot5.png)
+![image3](Images/screenshot6.png)
 
 
 # Directory Structure
