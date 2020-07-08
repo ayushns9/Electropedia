@@ -1,5 +1,5 @@
 # Electropedia
-
+UPDATE: Database is currently down.
 Visit our website at to find the cheapest price for the electronics you want!: [http://dbms-website.herokuapp.com/](http://dbms-website.herokuapp.com/)
 
 E-shopping can get time-consuming and confusing given all the different websites that sell the same products. Inspired by this problem our project focuses on implementing a system that gives the cheapest price available for that particular product to a user taking the information from various e-commerce sites and presenting it after due comparisons.
